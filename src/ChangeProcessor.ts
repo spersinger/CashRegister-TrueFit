@@ -33,13 +33,24 @@ class ChangeProcessor {
     }
   }
 
+  // Written by Claude
+  // The prompt I used is in prompt_history.txt
+  // I haven't written Regex in a while, so this was the fastest way to get the job done,
+  // Tested with test requirement x.x
   private pluralize(name: string): string {
+    // Case 1: word ends in a consonant + "y" (e.g. "penny" to "pennies")
+     // Regex breakdown: [^aeiou]y$ matches a "y" preceded by any non-vowel character, at the end of the string
     if (/[^aeiou]y$/i.test(name)) {
+      // Drop the trailing "y" and append "ies"
       return name.slice(0, -1) + "ies";
     }
+    // Case 2: word ends in s, x, z, ch, or sh (e.g. "bus", "church"),
+    // "buzz"-like z endings, "church" to "churches", "dish" to "dishes")
+    // These endings need "es" rather than just "s" so the plural is pronounceable
     if (/(s|x|z|ch|sh)$/i.test(name)) {
       return name + "es";
     }
+    // All other cases just append "s"
     return name + "s";
   }
 
@@ -74,25 +85,23 @@ class ChangeProcessor {
     const counts = new Map<string, number>(denominations.map(denomination => [denomination.name, 0]));
 
     if (this.mode === "random") {
-      // See what denominations of currency are still eligible for change
-      // Then pick a random one from the still eligible ones
-      const still_eligible = denominations.filter(d => d.value <= remainingCents);
-      const pick = still_eligible[Math.floor(Math.random() * still_eligible.length)];
-      if (!pick) {
-        return { mode: this.mode, value: undefined, error: "No eligible denominations remaining"};
-      }
+      while (remainingCents > 0) {
+        // See what denominations of currency are still eligible for change
+        // Then pick a random one from the still eligible ones
+        const still_eligible = denominations.filter(d => d.value <= remainingCents);
+        const pick = still_eligible[Math.floor(Math.random() * still_eligible.length)];
+        if (!pick) {
+          return { mode: this.mode, value: undefined, error: "No eligible denominations remaining"};
+        }
 
-      remainingCents -= pick.value;
-      counts.set(pick.name, (counts.get(pick.name) ?? 0) + 1);
+        counts.set(pick.name, (counts.get(pick.name) ?? 0) + 1);
+        remainingCents -= pick.value;
+      }
     } else {
       for (const denomination of denominations) {
         const count = Math.floor(remainingCents/ denomination.value);
         if (count > 0) {
-          let name = denomination.name;
-          if (count > 1) {
-            name = this.pluralize(name);
-          }
-          counts.set(name, count);
+          counts.set(denomination.name, count);
           remainingCents -= count * denomination.value;
         }
       }
@@ -104,13 +113,15 @@ class ChangeProcessor {
     const summary = [];
     for (const [denomination, count] of counts) {
       if (count > 0) {
-        summary.push(`${count} ${denomination}`);
+        let name = denomination;
+        if (count > 1) {
+          name = this.pluralize(name);
+        }
+        summary.push(`${count} ${name}`);
       }
     }
     return summary.join(",");
   }
-
-
 }
 
 export default ChangeProcessor;

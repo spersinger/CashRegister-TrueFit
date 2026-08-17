@@ -38,21 +38,46 @@ function App() {
     }
   };
 
+  const handleDownloadResults = () => {
+    if (!results || results.length === 0) return;
+
+    const content = results
+      .map((r) => r.value ?? r.error ?? "")
+      .join("\n");
+
+    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const download_date = new Date();
+    a.download = `${download_date.toLocaleString("en-GB", {hour12: false})}-results.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <div className="app">
       <div className="container">
         <h1>Cash Register</h1>
         <div className="input-container">
-          <input
-            type="text"
-            value={owed}
-            onChange={(e) => setOwed(e.target.value)}
-          />
-          <input
-            type="text"
-            value={paid}
-            onChange={(e) => setPaid(e.target.value)}
-          />
+          <label>
+            Amount Owed:
+            <input
+              type="text"
+              value={owed}
+              onChange={(e) => setOwed(e.target.value)}
+              inputMode="decimal"
+            />
+          </label>
+          <label>
+            Amount Paid:
+            <input
+              type="text"
+              value={paid}
+              onChange={(e) => setPaid(e.target.value)}
+              inputMode="decimal"
+            />
+          </label>
           <button onClick={handleCalculateChange}>Calculate</button>
         </div>
         <div className="file-picker-container">
@@ -75,6 +100,9 @@ function App() {
               <ResultItem result={result} />
             </div>
           ))}
+          {results.length > 0 && results.every(result => result.error === undefined) && (
+            <button onClick={handleDownloadResults}>Download Results</button>
+          )}
         </div>
       </div>
     </div>

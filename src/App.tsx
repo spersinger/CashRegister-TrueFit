@@ -54,16 +54,18 @@ function App() {
           />
           <button onClick={handleCalculateChange}>Calculate</button>
         </div>
-        <label className="file-picker">
-          <span className="file-picker-button">Upload File</span>
-          <span className="file-picker-name">
-            {fileName ?? "No file chosen"}
-          </span>
-          <input type="file" onChange={handleFileUpload} />
-        </label>
-        {fileText && (
-          <button onClick={handleFileProcessing}>Process File</button>
-        )}
+        <div className="file-picker-container">
+          <label className="file-picker">
+            <span className="file-picker-button">Upload File</span>
+            <span className="file-picker-name">
+              {fileName ?? "No file chosen"}
+            </span>
+            <input type="file" onChange={handleFileUpload} />
+          </label>
+          {fileText && (
+            <button className="process-button" onClick={handleFileProcessing}>Process File</button>
+          )}
+        </div>
         <div className="results">
           <h3>Change Due:</h3>
           {results.length === 0 && <p>Upload a file or calculate a single transaction.</p>}

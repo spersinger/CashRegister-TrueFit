@@ -129,6 +129,10 @@
   width: 100%;
 }
 
+.note {
+    color: #7a4a00;
+}
+
 .results {
   background: #f6f7f8;
   border: 1px solid #d9dce1;

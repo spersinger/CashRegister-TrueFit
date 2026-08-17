@@ -4,6 +4,7 @@ import type { ChangeEvent } from "react";
 import "./App.css";
 import { ChangeProcessor } from "./ChangeProcessor";
 import type { change_result_t } from "./ChangeProcessor";
+import ResultItem from "./ResultItem";
 
 function App() {
   const [changeProcessor] = useState(() => new ChangeProcessor());
@@ -71,7 +72,7 @@ function App() {
           {results.length === 0 && <p>Upload a file or calculate a single transaction.</p>}
           {results.map((result, index) => (
             <div key={index}>
-              <p>{result.value}</p>
+              <ResultItem result={result} />
             </div>
           ))}
         </div>

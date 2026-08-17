@@ -55,7 +55,7 @@ export class ChangeProcessor {
   }
 
   public process_file_content(file_content: string): change_result_t[]{
-    let return_values: change_result_t[] = [];
+    const return_values: change_result_t[] = [];
     if (!file_content) {
       return_values.push({ mode: this.mode, value: undefined, error: "No file content provided"})
       return return_values;
@@ -68,6 +68,9 @@ export class ChangeProcessor {
         const change_summary = this.calculate_change(owed, paid);
         return_values.push(change_summary);
       } else {
+        if (line.length < 1) {
+          continue;
+        }
         return_values.push({ mode: this.mode, value: undefined, error: "Invalid line format"});
       }
     }
@@ -91,7 +94,8 @@ export class ChangeProcessor {
         const still_eligible = denominations.filter(d => d.value <= remainingCents);
         const pick = still_eligible[Math.floor(Math.random() * still_eligible.length)];
         if (!pick) {
-          return { mode: this.mode, value: undefined, error: "No eligible denominations remaining"};
+          const error = {mode: this.mode, value: undefined, error: "No eligible denominations remaining"}
+          return error;
         }
 
         counts.set(pick.name, (counts.get(pick.name) ?? 0) + 1);

@@ -1,0 +1,48 @@
+export type Denomination = { name: string; value: number };
+
+// Denominations are in minor units (cents/pence), largest first.
+export const CURRENCY_DENOMINATIONS: Record<string, Denomination[]> = {
+  USD: [
+    { name: "one hundred", value: 10000 },
+    { name: "fifty", value: 5000 },
+    { name: "twenty", value: 2000 },
+    { name: "ten", value: 1000 },
+    { name: "five", value: 500 },
+    { name: "dollar", value: 100 },
+    { name: "quarter", value: 25 },
+    { name: "dime", value: 10 },
+    { name: "nickel", value: 5 },
+    { name: "penny", value: 1 },
+  ],
+  GBP: [
+    { name: "£50 note", value: 5000 },
+    { name: "£20 note", value: 2000 },
+    { name: "£10 note", value: 1000 },
+    { name: "£5 note", value: 500 },
+    { name: "£2 coin", value: 200 },
+    { name: "£1 coin", value: 100 },
+    { name: "50p", value: 50 },
+    { name: "20p", value: 20 },
+    { name: "10p", value: 10 },
+    { name: "5p", value: 5 },
+    { name: "2p", value: 2 },
+    { name: "1p", value: 1 },
+  ],
+  EUR: [
+    { name: "€500 note", value: 50000 },
+    { name: "£200 note", value: 2000 },
+    { name: "€100 note", value: 10000 },
+    { name: "€50 note", value: 5000 },
+    { name: "€20 note", value: 2000 },
+    { name: "€10 note", value: 1000 },
+    { name: "€5 note", value: 500 },
+    { name: "€2 coin", value: 200 },
+    { name: "€1 coin", value: 100 },
+    { name: "50 cent", value: 50 },
+    { name: "20 cent", value: 20 },
+    { name: "10 cent", value: 10 },
+    { name: "5 cent", value: 5 },
+    { name: "2 cent", value: 2 },
+    { name: "1 cent", value: 1 },
+  ],
+};

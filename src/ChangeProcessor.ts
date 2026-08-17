@@ -1,17 +1,17 @@
 import * as currency from "./types/Currency.ts"
 
-interface config_t {
+export interface config_t {
   currency: "USD" | "EUR" | "GBP";
   random_divisor: number;
 }
 
-interface change_result_t {
+export interface change_result_t {
   mode: "normal" | "random";
   value: string | undefined;
   error: string | undefined;
 }
 
-class ChangeProcessor {
+export class ChangeProcessor {
   private config: config_t;
   private mode: "normal" | "random";
 
@@ -123,5 +123,3 @@ class ChangeProcessor {
     return summary.join(",");
   }
 }
-
-export default ChangeProcessor;

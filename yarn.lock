@@ -492,7 +492,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:^19.2.3":
+"@types/react-dom@npm:^19.2.4":
   version: 19.2.4
   resolution: "@types/react-dom@npm:19.2.4"
   peerDependencies:
@@ -501,7 +501,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react@npm:^19.2.17":
+"@types/react@npm:^19.2.18":
   version: 19.2.18
   resolution: "@types/react@npm:19.2.18"
   dependencies:
@@ -753,8 +753,8 @@ __metadata:
   dependencies:
     "@eslint/js": "npm:^10.0.1"
     "@types/node": "npm:^24.13.3"
-    "@types/react": "npm:^19.2.17"
-    "@types/react-dom": "npm:^19.2.3"
+    "@types/react": "npm:^19.2.18"
+    "@types/react-dom": "npm:^19.2.4"
     "@vitejs/plugin-react": "npm:^6.0.4"
     eslint: "npm:^10.8.0"
     eslint-plugin-react-hooks: "npm:^7.1.1"

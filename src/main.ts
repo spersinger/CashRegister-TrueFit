@@ -1,4 +1,4 @@
-import ChangeProcessor from "./ChangeProcessor";
+import { ChangeProcessor } from "./ChangeProcessor";
 
 const changeProcessor = new ChangeProcessor();
 const result = changeProcessor.process_file_content("2.0,3.0\n1.9,3.4\n3.33,8.0");

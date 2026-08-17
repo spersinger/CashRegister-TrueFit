@@ -1,0 +1,32 @@
+08/17/2026 1:20
+
+Write me a simple function to pluralize words using regex in Typescript, I want it to be commented to display knowledge of how the function works and to ensure correctness. It should  fall back to adding an s to the end. Make it short and consise, the words it will mostly be used with are dollar, quarter, dime, nickel, and penny. Along with other currencies from around the world
+
+Here's a compact version tailored to currency words:
+typescript
+
+private pluralize(name: string): string {
+// Case 1: word ends in a consonant + "y" (e.g. "penny" to "pennies")
+    // Regex breakdown: [^aeiou]y$ matches a "y" preceded by any non-vowel character, at the end of the string
+if (/[^aeiou]y$/i.test(name)) {
+    // Drop the trailing "y" and append "ies"
+    return name.slice(0, -1) + "ies";
+}
+// Case 2: word ends in s, x, z, ch, or sh (e.g. "bus", "church"),
+// "buzz"-like z endings, "church" to "churches", "dish" to "dishes")
+// These endings need "es" rather than just "s" so the plural is pronounceable
+if (/(s|x|z|ch|sh)$/i.test(name)) {
+    return name + "es";
+}
+// All other cases just append "s"
+return name + "s";
+}
+
+  // Default: just append "s" — covers dollar, quarter, dime, nickel,
+  // euro, yen, rupee, peso, franc, etc.
+  return word + "s";
+}
+
+This covers your main cases correctly: dollar → dollars, quarter → quarters, dime → dimes, nickel → nickels, penny → pennies. It'll also handle most world currencies fine (euro, yen, rupee, peso, franc, rand, won) since they follow the regular +s pattern.
+
+One thing to flag: a few currencies are irregular or invariant (e.g. yen and baht don't change in the plural in some usages, and words like zloty would hit the "y" rule and incorrectly become zlotys... actually zloty ends in vowel+y so it's fine here). If you run into a specific currency that breaks this, it's easy to add a small exceptions map above the regex checks.

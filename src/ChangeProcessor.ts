@@ -33,7 +33,17 @@ class ChangeProcessor {
     }
   }
 
-  public load_file(file_content: string): change_result_t[]{
+  private pluralize(name: string): string {
+    if (/[^aeiou]y$/i.test(name)) {
+      return name.slice(0, -1) + "ies";
+    }
+    if (/(s|x|z|ch|sh)$/i.test(name)) {
+      return name + "es";
+    }
+    return name + "s";
+  }
+
+  public process_file_content(file_content: string): change_result_t[]{
     let return_values: change_result_t[] = [];
     if (!file_content) {
       return_values.push({ mode: this.mode, value: undefined, error: "No file content provided"})
@@ -64,12 +74,25 @@ class ChangeProcessor {
     const counts = new Map<string, number>(denominations.map(denomination => [denomination.name, 0]));
 
     if (this.mode === "random") {
-      // TODO: generate random change
+      // See what denominations of currency are still eligible for change
+      // Then pick a random one from the still eligible ones
+      const still_eligible = denominations.filter(d => d.value <= remainingCents);
+      const pick = still_eligible[Math.floor(Math.random() * still_eligible.length)];
+      if (!pick) {
+        return { mode: this.mode, value: undefined, error: "No eligible denominations remaining"};
+      }
+
+      remainingCents -= pick.value;
+      counts.set(pick.name, (counts.get(pick.name) ?? 0) + 1);
     } else {
       for (const denomination of denominations) {
         const count = Math.floor(remainingCents/ denomination.value);
         if (count > 0) {
-          counts.set(denomination.name, count);
+          let name = denomination.name;
+          if (count > 1) {
+            name = this.pluralize(name);
+          }
+          counts.set(name, count);
           remainingCents -= count * denomination.value;
         }
       }

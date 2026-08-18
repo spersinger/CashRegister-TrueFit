@@ -17,8 +17,9 @@ vi.mock("../hooks/useGeolocation", () => ({
 
 beforeEach(() => {
   vi.clearAllMocks();
-  vi.spyOn(crypto, "randomUUID").mockReturnValue(
-    "00000000-0000-0000-0000-000000000001" as `${string}-${string}-${string}-${string}-${string}`
+  let uuidCounter = 0;
+  vi.spyOn(crypto, "randomUUID").mockImplementation(
+    () => `00000000-0000-0000-0000-${String(++uuidCounter).padStart(12, '0')}` as `${string}-${string}-${string}-${string}-${string}`
   );
 });
 

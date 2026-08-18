@@ -64,6 +64,8 @@ function useGeolocation() {
     let statusRef: PermissionStatus | null = null;
 
     if (!navigator.permissions) {
+      // queueMicrotask to not handle the permission state within useEffect potentially causing rerenders
+      // Claude wrote this, I was stuck on how to handle this without refactoring
       queueMicrotask(() => {
           fetchLocation();
       });

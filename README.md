@@ -33,10 +33,13 @@ Supported Currencies
 - US
 - GB
 - EUR
+
 Adding a new currency type is as simple as editing the currentDenominations.json file in src/currencyDenominations.json. The software will automatically detect and use the updated denominations if the country code is added to the config JSON, or matches the browsers country code for the current location.
 
 Currency is auto-detected from browser geolocation when permitted, falling back to the default config file if not. Supported denominations are defined in src/currencyDenominations.json.
-Project Structure
+
+#### Project Structure
+```
 src/
 ├── ChangeProcessor.ts          Core business logic (framework-agnostic, allowing for refactoring and reuse in different applications)
 ├── App.tsx                     Root React component
@@ -62,6 +65,7 @@ src/
     ├── ChangeProcessor.test.ts Unit tests for core logic
     ├── App.test.tsx            Integration tests
     └── ResultItem.test.tsx     Component tests
+```
 Tech Stack
 - TypeScript, React 19, Vite 8, Vitest, React Testing Library
 

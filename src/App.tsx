@@ -30,9 +30,12 @@ function App() {
   }, [location]);
 
   const handleCalculateChange = () => {
+    const owedFloat = parseFloat(owed);
+    const paidFloat = parseFloat(paid);
+    if (isNaN(owedFloat) || isNaN(paidFloat)) return;
     const results = changeProcessor.calculateChange(
-      parseFloat(owed),
-      parseFloat(paid),
+      owedFloat,
+      paidFloat,
     );
     setResults([results]);
   };

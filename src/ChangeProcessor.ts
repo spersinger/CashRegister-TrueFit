@@ -4,7 +4,7 @@ import { currencyForCountry } from "./currencyForCountry.ts";
 
 export interface Config {
   currency: "USD" | "EUR" | "GBP";
-  random_divisor: number;
+  randomDivisor: number;
 }
 
 export interface ChangeResult {
@@ -20,7 +20,7 @@ export class ChangeProcessor {
 
   constructor() {
     this.mode = "normal";
-    this.config = { currency: "USD", random_divisor: 3 };
+    this.config = { currency: "USD", randomDivisor: 3 };
   }
 
   public setLocation(location: LocationData): void {
@@ -32,27 +32,26 @@ export class ChangeProcessor {
     if (json.currency !== "USD" && json.currency !== "EUR" && json.currency !== "GBP") {
       throw new Error("currency must be a string");
     }
-    if (typeof json.random_divisor !== "number") {
-      throw new Error("random_divisor must be a number");
+    if (typeof json.randomDivisor !== "number") {
+      throw new Error("randomDivisor must be a number");
     }
   }
 
   public setConfig(file_content: string): void {
-    const json = JSON.parse(file_content);
     try {
+      const json = JSON.parse(file_content);
       this.validateJSON(json)
+      // JSON is valid, set the config
+      this.config = json;
     } catch (e) {
       console.error(e);
       return;
     }
-    // JSON is valid, set the config
-    this.config = json;
-    console.log(this.config);
   }
 
   private setMode(owed: number): void {
     this.mode = "normal";
-    const is_random = owed % this.config.random_divisor === 0;
+    const is_random = owed % this.config.randomDivisor === 0;
     if (is_random) {
       this.mode = "random";
     }

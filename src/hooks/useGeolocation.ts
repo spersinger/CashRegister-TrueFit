@@ -15,7 +15,11 @@ const STORAGE_KEY = 'user-location-data';
 function useGeolocation() {
   const [location, setLocation] = useState<LocationData | null>(() => {
     const cached = localStorage.getItem(STORAGE_KEY);
-    return cached ? JSON.parse(cached) : null;
+    try {
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
+    }
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
@@ -70,25 +74,21 @@ function useGeolocation() {
   }, []);
 
   useEffect(() => {
-    // Already have cached data — nothing to do on load
     if (location) return;
 
+    let statusRef: PermissionStatus | null = null;
+
     if (!navigator.permissions) {
-      // Permissions API not supported (e.g. Safari) — fall back to
-      // calling getCurrentPosition directly, which triggers the browser prompt
       fetchLocation();
       return;
     }
 
     navigator.permissions.query({ name: 'geolocation' }).then((status) => {
+      statusRef = status;
       setPermissionState(status.state);
-
-      // If permission was already granted previously, fetch immediately
       if (status.state === 'granted') {
         fetchLocation();
       }
-
-      // Watch for the user responding to the permission prompt
       status.onchange = () => {
         setPermissionState(status.state);
         if (status.state === 'granted') {
@@ -96,6 +96,12 @@ function useGeolocation() {
         }
       };
     });
+
+    return () => {
+      if (statusRef) {
+        statusRef.onchange = null;
+      }
+    };
   }, [location, fetchLocation]);
 
   return { location, error, loading, permissionState, requestLocation: fetchLocation };

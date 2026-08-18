@@ -1,7 +1,7 @@
-import type { change_result_t } from "./ChangeProcessor";
+import type { ChangeResult } from "./ChangeProcessor";
 
 interface ResultItemProps {
-  result: change_result_t;
+  result: ChangeResult;
 }
 
 const ResultItem = ({ result }: ResultItemProps) => {

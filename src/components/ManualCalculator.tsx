@@ -15,6 +15,7 @@ export const ManualCalculator = ({ changeProcessor, setResults }: ManualCalculat
   const [manualError, setManualError] = useState<string | null>(null);
 
   const handleCalculateChange = () => {
+    setManualError(null);
     const owedFloat = parseFloat(owed);
     const paidFloat = parseFloat(paid);
     if (isNaN(owedFloat) || isNaN(paidFloat)) {

@@ -11,6 +11,7 @@ export const ConfigLoader = ({ changeProcessor }: ConfigLoaderProps) => {
   const [configError, setConfigError] = useState<string | null>(null);
 
   const handleConfigFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
+    setConfigError(null);
     const file = event.target.files?.[0];
     if (file) {
       const text = await file.text();

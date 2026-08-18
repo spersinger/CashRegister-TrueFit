@@ -37,33 +37,24 @@ function useGeolocation() {
       async (position: GeolocationPosition) => {
         const { latitude, longitude } = position.coords;
 
+        let countryCode: string | null = "US";
+        let countryName: string | null = "United States";
+
         try {
           const res = await fetch(
             `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
           );
           const data = await res.json();
-
-          const result: LocationData = {
-            latitude,
-            longitude,
-            countryCode: data.countryCode ?? null,
-            countryName: data.countryName ?? null,
-          };
-
-          setLocation(result);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+          countryCode = data.countryCode ?? null;
+          countryName = data.countryName ?? null;
         } catch {
-          const result: LocationData = {
-            latitude,
-            longitude,
-            countryCode: null,
-            countryName: null,
-          };
-          setLocation(result);
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
-        } finally {
-          setLoading(false);
+          // Reverse geocoding failed, fall back to US
         }
+
+        const result: LocationData = { latitude, longitude, countryCode, countryName };
+        setLocation(result);
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(result));
+        setLoading(false);
       },
       (err: GeolocationPositionError) => {
         setError(err.message);

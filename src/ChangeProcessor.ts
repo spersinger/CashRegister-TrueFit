@@ -1,9 +1,10 @@
 import type { LocationData } from "./hooks/useGeolocation.ts";
 import * as currency from "./types/currency.ts"
-import { currencyForCountry } from "./currencyForCountry.ts";
+import { currencyForCountry } from "./helpers/currencyForCountry.ts";
+import { getSupportedCurrencies } from "./helpers/supportedCurrencies.ts";
 
 export interface Config {
-  currency: "USD" | "EUR" | "GBP";
+  currency: string;
   randomDivisor: number;
 }
 
@@ -29,7 +30,16 @@ export class ChangeProcessor {
 
   // Must be json: any here since we are accepting raw file content that might not be a valid config
   private validateJSON(json: any): void {
-    if (json.currency !== "USD" && json.currency !== "EUR" && json.currency !== "GBP") {
+    if (typeof json !== "object" || json === null) {
+      throw new Error("config must be an object");
+    }
+    if (!json.currency) {
+      throw new Error("currency ommitted from JSON");
+    }
+    if (!json.randomDivisor) {
+      throw new Error("randomDivisor ommitted from JSON");
+    }
+    if (!getSupportedCurrencies().includes(json.currency)) {
       throw new Error("currency must be a string");
     }
     if (typeof json.randomDivisor !== "number") {
@@ -37,9 +47,9 @@ export class ChangeProcessor {
     }
   }
 
-  public setConfig(file_content: string): void {
+  public setConfig(fileContent: string): void {
     try {
-      const json = JSON.parse(file_content);
+      const json = JSON.parse(fileContent);
       this.validateJSON(json)
       // JSON is valid, set the config
       this.config = json;
@@ -51,8 +61,8 @@ export class ChangeProcessor {
 
   private setMode(owed: number): void {
     this.mode = "normal";
-    const is_random = owed % this.config.randomDivisor === 0;
-    if (is_random) {
+    const isRandom = owed % this.config.randomDivisor === 0;
+    if (isRandom) {
       this.mode = "random";
     }
   }
@@ -78,29 +88,29 @@ export class ChangeProcessor {
     return name + "s";
   }
 
-  public processFileContent(file_content: string): ChangeResult[]{
-    const return_values: ChangeResult[] = [];
-    if (!file_content) {
+  public processFileContent(fileContent: string): ChangeResult[]{
+    const returnValues: ChangeResult[] = [];
+    if (!fileContent) {
       const key = crypto.randomUUID();
-      return_values.push({ mode: this.mode, value: undefined, error: "No file content provided", key})
-      return return_values;
+      returnValues.push({ mode: this.mode, value: undefined, error: "No file content provided", key})
+      return returnValues;
     }
 
-    const lines = file_content.split("\n");
+    const lines = fileContent.split("\n");
     for (const line of lines) {
       const [owed, paid] = line.split(",").map(Number);
       if (owed && paid) {
-        const change_summary = this.calculateChange(owed, paid);
-        return_values.push(change_summary);
+        const changeSummary = this.calculateChange(owed, paid);
+        returnValues.push(changeSummary);
       } else {
         if (line.length < 1) {
           continue;
         }
         const key = crypto.randomUUID();
-        return_values.push({ mode: this.mode, value: undefined, error: "Invalid line format", key});
+        returnValues.push({ mode: this.mode, value: undefined, error: "Invalid line format", key});
       }
     }
-    return return_values;
+    return returnValues;
   }
 
   public calculateChange(owed: number, paid: number): ChangeResult {
@@ -122,8 +132,8 @@ export class ChangeProcessor {
       while (remainingCents > 0) {
         // See what denominations of currency are still eligible for change
         // Then pick a random one from the still eligible ones
-        const still_eligible = denominations.filter(d => d.value <= remainingCents);
-        const pick = still_eligible[Math.floor(Math.random() * still_eligible.length)];
+        const stillEligible = denominations.filter(d => d.value <= remainingCents);
+        const pick = stillEligible[Math.floor(Math.random() * stillEligible.length)];
         if (!pick) {
           const error = {mode: this.mode, value: undefined, error: "No eligible denominations remaining", key}
           return error;

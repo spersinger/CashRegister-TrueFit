@@ -2,12 +2,12 @@ import type { LocationData } from "./hooks/useGeolocation.ts";
 import * as currency from "./types/currency.ts"
 import { currencyForCountry } from "./currencyForCountry.ts";
 
-export interface config_t {
+export interface Config {
   currency: "USD" | "EUR" | "GBP";
   random_divisor: number;
 }
 
-export interface change_result_t {
+export interface ChangeResult {
   mode: "normal" | "random";
   value: string | undefined;
   error: string | undefined;
@@ -15,7 +15,7 @@ export interface change_result_t {
 }
 
 export class ChangeProcessor {
-  private config: config_t;
+  private config: Config;
   private mode: "normal" | "random";
 
   constructor() {
@@ -28,20 +28,19 @@ export class ChangeProcessor {
   }
 
   // Must be json: any here since we are accepting raw file content that might not be a valid config
-  private validate_json(json: any): void {
+  private validateJSON(json: any): void {
     if (json.currency !== "USD" && json.currency !== "EUR" && json.currency !== "GBP") {
       throw new Error("currency must be a string");
     }
     if (typeof json.random_divisor !== "number") {
       throw new Error("random_divisor must be a number");
     }
-
   }
 
-  public read_config(file_content: string): void {
+  public setConfig(file_content: string): void {
     const json = JSON.parse(file_content);
     try {
-      this.validate_json(json)
+      this.validateJSON(json)
     } catch (e) {
       console.error(e);
       return;
@@ -51,7 +50,7 @@ export class ChangeProcessor {
     console.log(this.config);
   }
 
-  private set_mode(owed: number): void {
+  private setMode(owed: number): void {
     this.mode = "normal";
     const is_random = owed % this.config.random_divisor === 0;
     if (is_random) {
@@ -80,10 +79,10 @@ export class ChangeProcessor {
     return name + "s";
   }
 
-  public process_file_content(file_content: string): change_result_t[]{
-    const return_values: change_result_t[] = [];
-    const key = crypto.randomUUID();
+  public processFileContent(file_content: string): ChangeResult[]{
+    const return_values: ChangeResult[] = [];
     if (!file_content) {
+      const key = crypto.randomUUID();
       return_values.push({ mode: this.mode, value: undefined, error: "No file content provided", key})
       return return_values;
     }
@@ -92,24 +91,25 @@ export class ChangeProcessor {
     for (const line of lines) {
       const [owed, paid] = line.split(",").map(Number);
       if (owed && paid) {
-        const change_summary = this.calculate_change(owed, paid);
+        const change_summary = this.calculateChange(owed, paid);
         return_values.push(change_summary);
       } else {
         if (line.length < 1) {
           continue;
         }
+        const key = crypto.randomUUID();
         return_values.push({ mode: this.mode, value: undefined, error: "Invalid line format", key});
       }
     }
     return return_values;
   }
 
-  public calculate_change(owed: number, paid: number): change_result_t {
+  public calculateChange(owed: number, paid: number): ChangeResult {
     const owedCents = Math.round(owed * 100);
     const paidCents = Math.round(paid * 100);
     const key = crypto.randomUUID();
 
-    this.set_mode(owedCents);
+    this.setMode(owedCents);
     const changeCents = paidCents - owedCents;
     let remainingCents = changeCents;
     const denominations = currency.CURRENCY_DENOMINATIONS[this.config.currency];
@@ -142,10 +142,10 @@ export class ChangeProcessor {
         }
       }
     }
-    const summary = this.generate_summary(counts);
+    const summary = this.generateSummary(counts);
     return { mode: this.mode, value: summary, error: undefined, key};
   }
-  private generate_summary(counts: Map<string, number>): string {
+  private generateSummary(counts: Map<string, number>): string {
     const summary = [];
     for (const [denomination, count] of counts) {
       if (count > 0) {

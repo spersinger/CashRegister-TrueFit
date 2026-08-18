@@ -3,7 +3,7 @@ import type { ChangeEvent } from "react";
 
 import "./App.css";
 import { ChangeProcessor } from "./ChangeProcessor";
-import type { change_result_t } from "./ChangeProcessor";
+import type { ChangeResult } from "./ChangeProcessor";
 import ResultItem from "./ResultItem";
 
 import useGeolocation from "./hooks/useGeolocation";
@@ -14,7 +14,8 @@ function App() {
   const [paid, setPaid] = useState("3.00");
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileText, setFileText] = useState<string | null>(null);
-  const [results, setResults] = useState<change_result_t[]>([]);
+  const [configLoaded, setConfigLoaded] = useState(false);
+  const [results, setResults] = useState<ChangeResult[]>([]);
   const { location, loading, requestLocation } = useGeolocation();
 
   // Can use request location in the dependency array because useGeolocation has a stable reference
@@ -29,7 +30,7 @@ function App() {
   }, [location]);
 
   const handleCalculateChange = () => {
-    const results = changeProcessor.calculate_change(
+    const results = changeProcessor.calculateChange(
       parseFloat(owed),
       parseFloat(paid),
     );
@@ -47,8 +48,17 @@ function App() {
 
   const handleFileProcessing = () => {
     if (fileText) {
-      const results = changeProcessor.process_file_content(fileText);
+      const results = changeProcessor.processFileContent(fileText);
       setResults(results);
+    }
+  };
+
+  const handleConfigFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const text = await file.text();
+      changeProcessor.setConfig(text);
+      setConfigLoaded(true);
     }
   };
 
@@ -70,9 +80,19 @@ function App() {
   return (
     <div className="app">
       <div className="container">
-        <h1>Cash Register</h1>
-        {loading && <p>Loading location for local currency...</p>}
-        {location && !loading && <p>Using location for local currency</p>}
+        <div className="header">
+          <h1>Cash Register</h1>
+          {loading && <p>Loading location for local currency...</p>}
+          {location && !loading && <p>Using location for local currency</p>}
+          <label className="file-picker">
+            <span className="file-picker-button">Upload config</span>
+            <span className="file-picker-name">
+              {!configLoaded && "Default config loaded"}
+              {configLoaded && "Config loaded"}
+            </span>
+            <input type="file" onChange={handleConfigFileUpload} />
+          </label>
+        </div>
         <div className="input-container">
           <label>
             Amount Owed:

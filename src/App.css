@@ -10,6 +10,11 @@
   color: #1f2328;
 }
 
+.header {
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
 .container {
   display: flex;
   flex-direction: column;

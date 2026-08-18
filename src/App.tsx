@@ -15,6 +15,7 @@ function App() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileText, setFileText] = useState<string | null>(null);
   const [configLoaded, setConfigLoaded] = useState(false);
+  const [configError, setConfigError] = useState<string | null>(null);
   const [results, setResults] = useState<ChangeResult[]>([]);
   const { location, loading, requestLocation } = useGeolocation();
 
@@ -33,10 +34,7 @@ function App() {
     const owedFloat = parseFloat(owed);
     const paidFloat = parseFloat(paid);
     if (isNaN(owedFloat) || isNaN(paidFloat)) return;
-    const results = changeProcessor.calculateChange(
-      owedFloat,
-      paidFloat,
-    );
+    const results = changeProcessor.calculateChange(owedFloat, paidFloat);
     setResults([results]);
   };
 
@@ -60,7 +58,11 @@ function App() {
     const file = e.target.files?.[0];
     if (file) {
       const text = await file.text();
-      changeProcessor.setConfig(text);
+      const error = changeProcessor.setConfig(text);
+      if (error) {
+        setConfigError(error);
+        return;
+      }
       setConfigLoaded(true);
     }
   };
@@ -74,8 +76,8 @@ function App() {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    const download_date = new Date();
-    a.download = `${download_date.toLocaleString("en-GB", { hour12: false })}-results.txt`;
+    const downloadDate = new Date();
+    a.download = `${downloadDate.toLocaleString("en-GB", { hour12: false })}-results.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -95,6 +97,7 @@ function App() {
             </span>
             <input type="file" onChange={handleConfigFileUpload} />
           </label>
+          {configError && <p className="error">Config Error: {configError}.</p>}
         </div>
         <div className="input-container">
           <label>

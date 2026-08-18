@@ -1,5 +1,3 @@
 import { CURRENCY_DENOMINATIONS } from "../types/currency.ts";
 
-export function getSupportedCurrencies(): string[] {
-  return Object.keys(CURRENCY_DENOMINATIONS) as string[];
-}
+export const SUPPORTED_CURRENCIES = new Set(Object.keys(CURRENCY_DENOMINATIONS));

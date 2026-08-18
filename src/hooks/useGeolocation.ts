@@ -1,17 +1,11 @@
 import { useState, useEffect, useCallback } from 'react';
 
-interface Coordinates {
-  latitude: number;
-  longitude: number;
-}
-
-export interface LocationData extends Coordinates {
-  countryCode: string | null;
-  countryName: string | null;
-}
+import type { LocationData } from '../types/locationData';
 
 const STORAGE_KEY = 'user-location-data';
 
+// Written mostly by Claude, edits to preserve proper practice were made by spersinger
+// Claude generated some duplicated code and forgot to handle unmount (Or I just wasn't specific enough, regardless)
 function useGeolocation() {
   const [location, setLocation] = useState<LocationData | null>(() => {
     const cached = localStorage.getItem(STORAGE_KEY);

@@ -4,12 +4,9 @@ const EUR_COUNTRIES = new Set([
 ]);
 
 const GBP_COUNTRIES = new Set(["GB"]);
-
 const USD_COUNTRIES = new Set(["US"]);
 
-type Currency = "USD" | "EUR" | "GBP";
-
-export function currencyForCountry(countryCode: string | null): Currency {
+export function currencyForCountry(countryCode: string | null): string {
   if (!countryCode) return "USD";
 
   if (GBP_COUNTRIES.has(countryCode)) return "GBP";

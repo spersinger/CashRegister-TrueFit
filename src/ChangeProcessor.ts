@@ -1,7 +1,7 @@
-import type { LocationData } from "./hooks/useGeolocation.ts";
+import type { LocationData } from "./types/locationData.ts";
 import * as currency from "./types/currency.ts"
 import { currencyForCountry } from "./helpers/currencyForCountry.ts";
-import { getSupportedCurrencies } from "./helpers/supportedCurrencies.ts";
+import { SUPPORTED_CURRENCIES } from "./helpers/supportedCurrencies.ts";
 
 export interface Config {
   currency: string;
@@ -25,7 +25,11 @@ export class ChangeProcessor {
   }
 
   public setLocation(location: LocationData): void {
-    this.config.currency = currencyForCountry(location.countryCode);
+    const currency = currencyForCountry(location.countryCode);
+    if (!SUPPORTED_CURRENCIES.has(currency)) {
+      throw new Error("Unsupported currency");
+    }
+    this.config.currency = currency;
   }
 
   // Must be json: any here since we are accepting raw file content that might not be a valid config
@@ -36,10 +40,13 @@ export class ChangeProcessor {
     if (!json.currency) {
       throw new Error("currency ommitted from JSON");
     }
+    if (json.randomDivisor === 0) {
+      throw new Error("randomDivisor cannot be 0");
+    }
     if (!json.randomDivisor) {
       throw new Error("randomDivisor ommitted from JSON");
     }
-    if (!getSupportedCurrencies().includes(json.currency)) {
+    if (!SUPPORTED_CURRENCIES.has(json.currency)) {
       throw new Error("currency must be a string");
     }
     if (typeof json.randomDivisor !== "number") {
@@ -47,7 +54,7 @@ export class ChangeProcessor {
     }
   }
 
-  public setConfig(fileContent: string): void {
+  public setConfig(fileContent: string): string | null{
     try {
       const json = JSON.parse(fileContent);
       this.validateJSON(json)
@@ -55,8 +62,9 @@ export class ChangeProcessor {
       this.config = json;
     } catch (e) {
       console.error(e);
-      return;
+      return e instanceof Error ? e.message : String(e);
     }
+    return null;
   }
 
   private setMode(owed: number): void {
@@ -98,16 +106,16 @@ export class ChangeProcessor {
 
     const lines = fileContent.split("\n");
     for (const line of lines) {
-      const [owed, paid] = line.split(",").map(Number);
-      if (owed && paid) {
+      const [owed, paid] = line.trim().split(",").map(Number);
+      if (!isNaN(owed) && !isNaN(paid)) {
         const changeSummary = this.calculateChange(owed, paid);
         returnValues.push(changeSummary);
       } else {
-        if (line.length < 1) {
+        if (line.trim().length === 0) {
           continue;
         }
         const key = crypto.randomUUID();
-        returnValues.push({ mode: this.mode, value: undefined, error: "Invalid line format", key});
+        returnValues.push({ mode: this.mode, value: undefined, error: "Invalid line format, expected 'owed,paid'", key});
       }
     }
     return returnValues;

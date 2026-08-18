@@ -1,5 +1,5 @@
 {
-  "USD": [
+  "US": [
     { "name": "one hundred", "value": 10000 },
     { "name": "fifty", "value": 5000 },
     { "name": "twenty", "value": 2000 },
@@ -11,7 +11,7 @@
     { "name": "nickel", "value": 5 },
     { "name": "penny", "value": 1 }
   ],
-  "GBP": [
+  "GB": [
     { "name": "£50 note", "value": 5000 },
     { "name": "£20 note", "value": 2000 },
     { "name": "£10 note", "value": 1000 },

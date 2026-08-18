@@ -21,7 +21,7 @@ export class ChangeProcessor {
 
   constructor() {
     this.mode = "normal";
-    this.config = { currency: "USD", randomDivisor: 3 };
+    this.config = { currency: "US", randomDivisor: 3 };
   }
 
   public setLocation(location: LocationData): void {

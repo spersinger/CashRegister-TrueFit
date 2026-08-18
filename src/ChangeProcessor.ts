@@ -1,5 +1,5 @@
 import type { LocationData } from "./types/locationData.ts";
-import * as currency from "./types/currency.ts"
+import * as currency from "./types/currency.ts";
 import { currencyForCountry } from "./helpers/currencyForCountry.ts";
 import { SUPPORTED_CURRENCIES } from "./helpers/supportedCurrencies.ts";
 
@@ -32,19 +32,18 @@ export class ChangeProcessor {
     this.config.currency = currency;
   }
 
-  // Must be json: any here since we are accepting raw file content that might not be a valid config
-  private validateJSON(json: any): void {
+  private validateJSON(json: Config): void {
     if (typeof json !== "object" || json === null) {
       throw new Error("config must be an object");
+    }
+    if (!json.randomDivisor) {
+      throw new Error("randomDivisor omitted from JSON");
     }
     if (!json.currency) {
       throw new Error("currency omitted from JSON");
     }
     if (json.randomDivisor === 0) {
       throw new Error("randomDivisor cannot be 0");
-    }
-    if (!json.randomDivisor) {
-      throw new Error("randomDivisor omitted from JSON");
     }
     if (!SUPPORTED_CURRENCIES.has(json.currency)) {
       throw new Error("currency must be a string");
@@ -57,7 +56,7 @@ export class ChangeProcessor {
   public setConfig(fileContent: string): string | null{
     try {
       const json = JSON.parse(fileContent);
-      this.validateJSON(json)
+      this.validateJSON(json);
       // JSON is valid, set the config
       this.config = json;
     } catch (e) {
@@ -100,7 +99,7 @@ export class ChangeProcessor {
     const returnValues: ChangeResult[] = [];
     if (!fileContent) {
       const key = crypto.randomUUID();
-      returnValues.push({ mode: this.mode, value: undefined, error: "No file content provided", key})
+      returnValues.push({ mode: this.mode, value: undefined, error: "No file content provided", key});
       return returnValues;
     }
 
@@ -143,7 +142,7 @@ export class ChangeProcessor {
         const stillEligible = denominations.filter(d => d.value <= remainingCents);
         const pick = stillEligible[Math.floor(Math.random() * stillEligible.length)];
         if (!pick) {
-          const error = {mode: this.mode, value: undefined, error: "No eligible denominations remaining", key}
+          const error = {mode: this.mode, value: undefined, error: "No eligible denominations remaining", key};
           return error;
         }
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChangeProcessor } from "../ChangeProcessor";
+import { ChangeProcessor } from "../ChangeProcessor.ts";
 import type { Dispatch, SetStateAction } from "react";
 import type { ChangeResult } from "../ChangeProcessor";
 

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import ResultItem from "../ResultItem";
+import ResultItem from "../ResultItem.tsx";
 import type { ChangeResult } from "../ChangeProcessor";
 
 describe("ResultItem", () => {

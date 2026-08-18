@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from "vitest";
-import { ChangeProcessor } from "../ChangeProcessor";
+import { ChangeProcessor } from "../ChangeProcessor.ts";
 
 describe("ChangeProcessor", () => {
   let processor: ChangeProcessor;

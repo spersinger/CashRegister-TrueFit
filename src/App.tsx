@@ -1,14 +1,14 @@
 import { useEffect, useState } from "react";
 
 import "./App.css";
-import { ChangeProcessor } from "./ChangeProcessor";
+import { ChangeProcessor } from "./ChangeProcessor.ts";
 import type { ChangeResult } from "./ChangeProcessor";
 
-import useGeolocation from "./hooks/useGeolocation";
-import { ConfigLoader } from "./components/ConfigLoader";
-import { ManualCalculator } from "./components/ManualCalculator";
-import { FileProcessor } from "./components/FileProcessor";
-import { ResultsPanel } from "./components/ResultsPanel";
+import useGeolocation from "./hooks/useGeolocation.ts";
+import { ConfigLoader } from "./components/ConfigLoader.tsx";
+import { ManualCalculator } from "./components/ManualCalculator.tsx";
+import { FileProcessor } from "./components/FileProcessor.tsx";
+import { ResultsPanel } from "./components/ResultsPanel.tsx";
 
 function App() {
   // I realize this has prop drilling, however for this small of a project I believe
@@ -28,7 +28,7 @@ function App() {
     if (location) {
       changeProcessor.setLocation(location);
     }
-  }, [location]);
+  }, [location, changeProcessor]);
 
   return (
     <div className="app">

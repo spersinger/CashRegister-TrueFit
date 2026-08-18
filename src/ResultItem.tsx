@@ -12,6 +12,6 @@ const ResultItem = ({ result }: ResultItemProps) => {
       <p>{result.value}</p>
     </div>
   );
-}
+};
 
 export default ResultItem;

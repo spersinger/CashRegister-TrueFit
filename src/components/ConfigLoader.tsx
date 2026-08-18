@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ChangeProcessor } from "../ChangeProcessor";
+import { ChangeProcessor } from "../ChangeProcessor.ts";
 import type { ChangeEvent } from "react";
-
 
 interface ConfigLoaderProps {
   changeProcessor: ChangeProcessor;

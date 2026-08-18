@@ -1,5 +1,5 @@
 import type { ChangeResult } from "../ChangeProcessor";
-import ResultItem from "../ResultItem";
+import ResultItem from "../ResultItem.tsx";
 
 interface ResultsPanelProps {
   results: ChangeResult[];
@@ -38,5 +38,5 @@ export const ResultsPanel = ({ results }: ResultsPanelProps) => {
         </div>
       ))}
     </div>
-  )
+  );
 };

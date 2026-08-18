@@ -1,4 +1,4 @@
-import { CURRENCY_DENOMINATIONS } from "../types/currency";
+import { CURRENCY_DENOMINATIONS } from "../types/currency.ts";
 
 const EUR_COUNTRIES = new Set([
   "AT", "BE", "HR", "CY", "EE", "FI", "FR", "DE", "GR", "IE",

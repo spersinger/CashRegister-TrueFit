@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 
-import type { LocationData } from '../types/locationData';
+import type { LocationData } from '../types/locationData.ts';
 
 const STORAGE_KEY = 'user-location-data';
 
@@ -64,7 +64,9 @@ function useGeolocation() {
     let statusRef: PermissionStatus | null = null;
 
     if (!navigator.permissions) {
-      fetchLocation();
+      queueMicrotask(() => {
+          fetchLocation();
+      });
       return;
     }
 

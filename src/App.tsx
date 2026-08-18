@@ -11,9 +11,7 @@ import { FileProcessor } from "./components/FileProcessor.tsx";
 import { ResultsPanel } from "./components/ResultsPanel.tsx";
 
 function App() {
-  // I realize this has prop drilling, however for this small of a project I believe
-  // it to be fine. If it was any larger (eg: multiple levels of nesting) mobx or
-  // state management libraries would be a better choice.
+  // Prop drilling is acceptable at this project size; use a state library if nesting grows.
   const [changeProcessor] = useState(() => new ChangeProcessor());
   const [results, setResults] = useState<ChangeResult[]>([]);
   const { location, loading, requestLocation, permissionState } =

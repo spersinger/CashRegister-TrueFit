@@ -6,6 +6,17 @@ const STORAGE_KEY = 'user-location-data';
 
 // Written mostly by Claude, edits to preserve proper practice were made by spersinger
 // Claude generated some duplicated code and forgot to handle unmount (Or I just wasn't specific enough, regardless)
+/**
+ * Requests browser geolocation, reverse geocodes coordinates to a country,
+ * and caches the result in localStorage. Automatically checks permission
+ * state and re-fetches when permission transitions to "granted".
+ *
+ * @returns location - Resolved LocationData or null if not yet available.
+ * @returns error - Error message if geolocation or geocoding failed.
+ * @returns loading - True while a geolocation request is in flight.
+ * @returns permissionState - Current geolocation permission state, or null if Permissions API is unavailable.
+ * @returns requestLocation - Manually trigger a location request.
+ */
 function useGeolocation() {
   const [location, setLocation] = useState<LocationData | null>(() => {
     const cached = localStorage.getItem(STORAGE_KEY);

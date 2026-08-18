@@ -7,6 +7,7 @@ interface ResultsPanelProps {
 
 export const ResultsPanel = ({ results }: ResultsPanelProps) => {
 
+  /** Download all results as a timestamped .txt file, one result per line. */
   const handleDownloadResults = () => {
     if (!results || results.length === 0) return;
 

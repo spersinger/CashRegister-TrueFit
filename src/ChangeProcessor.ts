@@ -3,18 +3,31 @@ import * as currency from "./types/currency.ts";
 import { currencyForCountry } from "./helpers/currencyForCountry.ts";
 import { SUPPORTED_CURRENCIES } from "./helpers/supportedCurrencies.ts";
 
+/** Application configuration for change calculation. */
 export interface Config {
+  /** Currency code keying into CURRENCY_DENOMINATIONS (e.g. "US", "GB", "EUR"). */
   currency: string;
+  /** Divisor for random mode: if owedCents % randomDivisor === 0, denominations are randomized. */
   randomDivisor: number;
 }
 
+/** Result of a single change calculation or file line parse. */
 export interface ChangeResult {
+  /** Whether this result used greedy ("normal") or randomized denomination selection. */
   mode: "normal" | "random";
+  /** Human-readable change breakdown (e.g. "3 quarters,1 dime,3 pennies"), or undefined on error. */
   value: string | undefined;
+  /** Error message if the calculation failed, otherwise undefined. */
   error: string | undefined;
+  /** Unique key for React list rendering. */
   key: string;
 }
 
+/**
+ * Framework-agnostic change calculator. Manages currency config and
+ * processes single or batched transactions into human-readable
+ * denomination breakdowns.
+ */
 export class ChangeProcessor {
   private config: Config;
   private mode: "normal" | "random";
@@ -24,6 +37,10 @@ export class ChangeProcessor {
     this.config = { currency: "US", randomDivisor: 3 };
   }
 
+  /**
+   * Set the active currency from a geolocated country code.
+   * @throws {Error} If the resolved currency is not in SUPPORTED_CURRENCIES.
+   */
   public setLocation(location: LocationData): void {
     const currency = currencyForCountry(location.countryCode);
     if (!SUPPORTED_CURRENCIES.has(currency)) {
@@ -53,6 +70,10 @@ export class ChangeProcessor {
     }
   }
 
+  /**
+   * Parse and apply a JSON config string. Updates currency and randomDivisor.
+   * @returns null on success, or an error message string on failure.
+   */
   public setConfig(fileContent: string): string | null{
     try {
       const json = JSON.parse(fileContent);
@@ -95,6 +116,11 @@ export class ChangeProcessor {
     return name + "s";
   }
 
+  /**
+   * Parse a multi-line CSV string (one "owed,paid" pair per line) and return
+   * a ChangeResult for each valid line. Blank lines are skipped; malformed
+   * lines produce an error result.
+   */
   public processFileContent(fileContent: string): ChangeResult[]{
     const returnValues: ChangeResult[] = [];
     if (!fileContent) {
@@ -120,6 +146,10 @@ export class ChangeProcessor {
     return returnValues;
   }
 
+  /**
+   * Calculate change for a single owed/paid pair using the current currency.
+   * Uses greedy algorithm by default; random mode if owedCents % randomDivisor === 0.
+   */
   public calculateChange(owed: number, paid: number): ChangeResult {
     const owedCents = Math.round(owed * 100);
     const paidCents = Math.round(paid * 100);

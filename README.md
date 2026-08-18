@@ -5,7 +5,8 @@
 ### About
 
 This project is a SPA that allows users to calculate change and manage transactions.
-The core logic is in ChangeProcessor.ts to allow for modularity of requirements change or to allow for easy porting to a new application, whether a mobile app, or CLI, or any other platform.
+
+The core logic is in ChangeProcessor.ts to allow for modularity. If requirements change this allows for easy porting to a new application, whether a mobile app, or CLI, or any other platform.
 
 ### Getting Started
 

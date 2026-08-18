@@ -425,8 +425,10 @@ const US_DENOMINATIONS = [
   { name: "penny", value: 1 },
 ];
 
-function parseSummaryToCents(summary: string): number {
-  let total = 0;
+type ParsedEntry = { count: number; denom: { name: string; value: number } };
+
+function parseSummary(summary: string): ParsedEntry[] {
+  const entries: ParsedEntry[] = [];
   for (const part of summary.split(",")) {
     const trimmed = part.trim();
     const spaceIdx = trimmed.indexOf(" ");
@@ -443,36 +445,16 @@ function parseSummaryToCents(summary: string): number {
       return d.name === denomName || plural === denomName;
     });
     if (denom) {
-      total += count * denom.value;
+      entries.push({ count, denom });
     }
   }
-  return total;
+  return entries;
 }
 
-function parseSummaryToDenominations(
-  summary: string
-): Array<{ name: string; value: number }> {
-  const result: Array<{ name: string; value: number }> = [];
-  for (const part of summary.split(",")) {
-    const trimmed = part.trim();
-    const spaceIdx = trimmed.indexOf(" ");
-    if (spaceIdx === -1) continue;
-    const count = parseInt(trimmed.slice(0, spaceIdx), 10);
-    const denomName = trimmed.slice(spaceIdx + 1);
-    const denom = US_DENOMINATIONS.find((d) => {
-      const plural =
-        d.value === 1
-          ? "pennies"
-          : d.name.endsWith("y")
-            ? d.name.slice(0, -1) + "ies"
-            : d.name + "s";
-      return d.name === denomName || plural === denomName;
-    });
-    if (denom) {
-      for (let i = 0; i < count; i++) {
-        result.push(denom);
-      }
-    }
-  }
-  return result;
+function parseSummaryToCents(summary: string): number {
+  return parseSummary(summary).reduce((sum, e) => sum + e.count * e.denom.value, 0);
+}
+
+function parseSummaryToDenominations(summary: string): Array<{ name: string; value: number }> {
+  return parseSummary(summary).flatMap((e) => Array(e.count).fill(e.denom));
 }

@@ -38,13 +38,13 @@ export class ChangeProcessor {
       throw new Error("config must be an object");
     }
     if (!json.currency) {
-      throw new Error("currency ommitted from JSON");
+      throw new Error("currency omitted from JSON");
     }
     if (json.randomDivisor === 0) {
       throw new Error("randomDivisor cannot be 0");
     }
     if (!json.randomDivisor) {
-      throw new Error("randomDivisor ommitted from JSON");
+      throw new Error("randomDivisor omitted from JSON");
     }
     if (!SUPPORTED_CURRENCIES.has(json.currency)) {
       throw new Error("currency must be a string");

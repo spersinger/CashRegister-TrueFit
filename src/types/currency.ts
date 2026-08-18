@@ -30,7 +30,7 @@ export const CURRENCY_DENOMINATIONS: Record<string, Denomination[]> = {
   ],
   EUR: [
     { name: "€500 note", value: 50000 },
-    { name: "£200 note", value: 2000 },
+    { name: "€200 note", value: 20000 },
     { name: "€100 note", value: 10000 },
     { name: "€50 note", value: 5000 },
     { name: "€20 note", value: 2000 },

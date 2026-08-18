@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { ChangeEvent } from "react";
 
 import "./App.css";
 import { ChangeProcessor } from "./ChangeProcessor";
 import type { change_result_t } from "./ChangeProcessor";
 import ResultItem from "./ResultItem";
+
+import useGeolocation from "./hooks/useGeolocation";
 
 function App() {
   const [changeProcessor] = useState(() => new ChangeProcessor());
@@ -13,6 +15,18 @@ function App() {
   const [fileName, setFileName] = useState<string | null>(null);
   const [fileText, setFileText] = useState<string | null>(null);
   const [results, setResults] = useState<change_result_t[]>([]);
+  const { location, loading, requestLocation } = useGeolocation();
+
+  // Can use request location in the dependency array because useGeolocation has a stable reference
+  useEffect(() => {
+    requestLocation();
+  }, [requestLocation]);
+
+  useEffect(() => {
+    if (location) {
+      changeProcessor.setLocation(location);
+    }
+  }, [location]);
 
   const handleCalculateChange = () => {
     const results = changeProcessor.calculate_change(
@@ -41,16 +55,14 @@ function App() {
   const handleDownloadResults = () => {
     if (!results || results.length === 0) return;
 
-    const content = results
-      .map((r) => r.value ?? r.error ?? "")
-      .join("\n");
+    const content = results.map((r) => r.value ?? r.error ?? "").join("\n");
 
     const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
     const download_date = new Date();
-    a.download = `${download_date.toLocaleString("en-GB", {hour12: false})}-results.txt`;
+    a.download = `${download_date.toLocaleString("en-GB", { hour12: false })}-results.txt`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -59,6 +71,8 @@ function App() {
     <div className="app">
       <div className="container">
         <h1>Cash Register</h1>
+        {loading && <p>Loading location for local currency...</p>}
+        {location && !loading && <p>Using location for local currency</p>}
         <div className="input-container">
           <label>
             Amount Owed:
@@ -89,20 +103,25 @@ function App() {
             <input type="file" onChange={handleFileUpload} />
           </label>
           {fileText && (
-            <button className="process-button" onClick={handleFileProcessing}>Process File</button>
+            <button className="process-button" onClick={handleFileProcessing}>
+              Process File
+            </button>
           )}
         </div>
         <div className="results">
           <h3>Change Due:</h3>
-          {results.length === 0 && <p>Upload a file or calculate a single transaction.</p>}
-          {results.map((result, index) => (
-            <div key={index}>
+          {results.length === 0 && (
+            <p>Upload a file or calculate a single transaction.</p>
+          )}
+          {results.map((result) => (
+            <div key={result.key}>
               <ResultItem result={result} />
             </div>
           ))}
-          {results.length > 0 && results.every(result => result.error === undefined) && (
-            <button onClick={handleDownloadResults}>Download Results</button>
-          )}
+          {results.length > 0 &&
+            results.every((result) => result.error === undefined) && (
+              <button onClick={handleDownloadResults}>Download Results</button>
+            )}
         </div>
       </div>
     </div>

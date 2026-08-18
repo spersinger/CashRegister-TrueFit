@@ -1,23 +1,23 @@
 import { useEffect, useState } from "react";
-import type { ChangeEvent } from "react";
 
 import "./App.css";
 import { ChangeProcessor } from "./ChangeProcessor";
 import type { ChangeResult } from "./ChangeProcessor";
-import ResultItem from "./ResultItem";
 
 import useGeolocation from "./hooks/useGeolocation";
+import { ConfigLoader } from "./components/ConfigLoader";
+import { ManualCalculator } from "./components/ManualCalculator";
+import { FileProcessor } from "./components/FileProcessor";
+import { ResultsPanel } from "./components/ResultsPanel";
 
 function App() {
+  // I realize this has prop drilling, however for this small of a project I believe
+  // it to be fine. If it was any larger (eg: multiple levels of nesting) mobx or
+  // state management libraries would be a better choice.
   const [changeProcessor] = useState(() => new ChangeProcessor());
-  const [owed, setOwed] = useState("2.12");
-  const [paid, setPaid] = useState("3.00");
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [fileText, setFileText] = useState<string | null>(null);
-  const [configLoaded, setConfigLoaded] = useState(false);
-  const [configError, setConfigError] = useState<string | null>(null);
   const [results, setResults] = useState<ChangeResult[]>([]);
-  const { location, loading, requestLocation } = useGeolocation();
+  const { location, loading, requestLocation, permissionState } =
+    useGeolocation();
 
   // Can use request location in the dependency array because useGeolocation has a stable reference
   useEffect(() => {
@@ -30,58 +30,6 @@ function App() {
     }
   }, [location]);
 
-  const handleCalculateChange = () => {
-    const owedFloat = parseFloat(owed);
-    const paidFloat = parseFloat(paid);
-    if (isNaN(owedFloat) || isNaN(paidFloat)) return;
-    const results = changeProcessor.calculateChange(owedFloat, paidFloat);
-    setResults([results]);
-  };
-
-  const handleFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const text = await file.text();
-      setFileText(text);
-      setFileName(file.name);
-    }
-  };
-
-  const handleFileProcessing = () => {
-    if (fileText) {
-      const results = changeProcessor.processFileContent(fileText);
-      setResults(results);
-    }
-  };
-
-  const handleConfigFileUpload = async (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const text = await file.text();
-      const error = changeProcessor.setConfig(text);
-      if (error) {
-        setConfigError(error);
-        return;
-      }
-      setConfigLoaded(true);
-    }
-  };
-
-  const handleDownloadResults = () => {
-    if (!results || results.length === 0) return;
-
-    const content = results.map((r) => r.value ?? r.error ?? "").join("\n");
-
-    const blob = new Blob([content], { type: "text/plain;charset=utf-8" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    const downloadDate = new Date();
-    a.download = `${downloadDate.toLocaleString("en-GB", { hour12: false })}-results.txt`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
   return (
     <div className="app">
       <div className="container">
@@ -89,66 +37,18 @@ function App() {
           <h1>Cash Register</h1>
           {loading && <p>Loading location for local currency...</p>}
           {location && !loading && <p>Using location for local currency</p>}
-          <label className="file-picker">
-            <span className="file-picker-button">Upload config</span>
-            <span className="file-picker-name">
-              {!configLoaded && "Default config loaded"}
-              {configLoaded && "Config loaded"}
-            </span>
-            <input type="file" onChange={handleConfigFileUpload} />
-          </label>
-          {configError && <p className="error">Config Error: {configError}.</p>}
+          {permissionState === "denied" && <p>Location permission denied</p>}
+          <ConfigLoader changeProcessor={changeProcessor} />
         </div>
-        <div className="input-container">
-          <label>
-            Amount Owed:
-            <input
-              type="text"
-              value={owed}
-              onChange={(e) => setOwed(e.target.value)}
-              inputMode="decimal"
-            />
-          </label>
-          <label>
-            Amount Paid:
-            <input
-              type="text"
-              value={paid}
-              onChange={(e) => setPaid(e.target.value)}
-              inputMode="decimal"
-            />
-          </label>
-          <button onClick={handleCalculateChange}>Calculate</button>
-        </div>
-        <div className="file-picker-container">
-          <label className="file-picker">
-            <span className="file-picker-button">Upload File</span>
-            <span className="file-picker-name">
-              {fileName ?? "No file chosen"}
-            </span>
-            <input type="file" onChange={handleFileUpload} />
-          </label>
-          {fileText && (
-            <button className="process-button" onClick={handleFileProcessing}>
-              Process File
-            </button>
-          )}
-        </div>
-        <div className="results">
-          <h3>Change Due:</h3>
-          {results.length === 0 && (
-            <p>Upload a file or calculate a single transaction.</p>
-          )}
-          {results.map((result) => (
-            <div key={result.key}>
-              <ResultItem result={result} />
-            </div>
-          ))}
-          {results.length > 0 &&
-            results.every((result) => result.error === undefined) && (
-              <button onClick={handleDownloadResults}>Download Results</button>
-            )}
-        </div>
+        <ManualCalculator
+          changeProcessor={changeProcessor}
+          setResults={setResults}
+        />
+        <FileProcessor
+          changeProcessor={changeProcessor}
+          setResults={setResults}
+        />
+        <ResultsPanel results={results} />
       </div>
     </div>
   );

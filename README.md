@@ -1,5 +1,72 @@
 # Cash Register
 
+## Sam Persinger's Implementation
+
+### Getting Started
+
+```bash
+# Install dependencies
+yarn install
+
+# Start the dev server
+yarn dev
+```
+The app will be available at http://localhost:5173.
+
+### How It Works
+Manual mode: Enter an amount owed and amount paid, click Calculate.
+File upload: Upload a .txt or .csv file with one transaction per line (owed,paid), e.g.:
+```
+2.12,3.00
+1.97,2.00
+3.33,5.00
+```
+Each line produces a change breakdown. If the owed amount (in cents) is divisible by the random divisor (defaults to 3), change denominations are randomized while still totaling correctly.
+Config upload: Upload a JSON config to change the currency or random divisor:
+```json
+{
+  "currency": "US",
+  "randomDivisor": 3
+}
+```
+Supported Currencies
+- US
+- GB
+- EUR
+Adding a new currency type is as simple as editing the currentDenominations.json file in src/currencyDenominations.json. The software will automatically detect and use the updated denominations if the country code is added to the config JSON, or matches the browsers country code for the current location.
+
+Currency is auto-detected from browser geolocation when permitted, falling back to the default config file if not. Supported denominations are defined in src/currencyDenominations.json.
+Project Structure
+src/
+├── ChangeProcessor.ts          Core business logic (framework-agnostic, allowing for refactoring and reuse in different applications)
+├── App.tsx                     Root React component
+├── main.tsx                    React entry point
+├── ResultItem.tsx              Single result line renderer
+├── currencyDenominations.json  Denomination data per currency
+├── components/
+│   ├── ConfigLoader.tsx        Config JSON file upload UI
+│   ├── FileProcessor.tsx       Flat-file upload UI
+│   ├── ManualCalculator.tsx    Manual owed/paid input UI
+│   └── ResultsPanel.tsx        Results display + download
+├── helpers/
+│   ├── currencyForCountry.ts   Country code → currency mapping
+│   └── supportedCurrencies.ts  Set of valid currency keys
+├── hooks/
+│   └── useGeolocation.ts       Browser geolocation + reverse geocoding
+├── types/
+│   ├── currency.ts             Denomination type + exported map
+│   └── locationData.ts         LocationData interface
+├── scripts/
+│   └── main.ts                 Standalone CLI demo (no React)
+└── __tests__/
+    ├── ChangeProcessor.test.ts Unit tests for core logic
+    ├── App.test.tsx            Integration tests
+    └── ResultItem.test.tsx     Component tests
+Tech Stack
+- TypeScript, React 19, Vite 8, Vitest, React Testing Library
+
+---
+
 ## The Problem
 Creative Cash Draw Solutions is a client who wants to provide something different for the cashiers who use their system. The function of the application is to tell the cashier how much change is owed, and what denominations should be used. In most cases the app should return the minimum amount of physical change, but the client would like to add a twist. If the "owed" amount is divisible by 3, the app should randomly generate the change denominations (but the math still needs to be right :))
 

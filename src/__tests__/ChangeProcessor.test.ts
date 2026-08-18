@@ -11,7 +11,7 @@ describe("ChangeProcessor", () => {
   // ─── Basic Change Calculation ───────────────────────────────────
   // README: "the app should return the minimum amount of physical change"
 
-  describe("minimum change calculation (USD)", () => {
+  describe("minimum change calculation (US)", () => {
     it("README sample: 2.12 owed, 3.00 paid → 3 quarters,1 dime,3 pennies", () => {
       const result = processor.calculateChange(2.12, 3.00);
       expect(result.error).toBeUndefined();
@@ -90,7 +90,7 @@ describe("ChangeProcessor", () => {
       expect(totalCents).toBe(167);
     });
 
-    it("random result uses only valid USD denominations", () => {
+    it("random result uses only valid US denominations", () => {
       const validValues = new Set([10000, 5000, 2000, 1000, 500, 100, 25, 10, 5, 1]);
 
       // Run multiple times to increase coverage of random paths
@@ -121,7 +121,7 @@ describe("ChangeProcessor", () => {
 
     it("random mode with custom randomDivisor 5: 1.05 owed → random (105 % 5 === 0)", () => {
       processor.setConfig(
-        JSON.stringify({ currency: "USD", randomDivisor: 5 })
+        JSON.stringify({ currency: "US", randomDivisor: 5 })
       );
       const result = processor.calculateChange(1.05, 2.0);
       expect(result.mode).toBe("random");
@@ -133,7 +133,7 @@ describe("ChangeProcessor", () => {
 
     it("random mode with custom divisor: 1.03 owed NOT random when divisor is 5 (103 % 5 !== 0)", () => {
       processor.setConfig(
-        JSON.stringify({ currency: "USD", randomDivisor: 5 })
+        JSON.stringify({ currency: "US", randomDivisor: 5 })
       );
       const result = processor.calculateChange(1.03, 2.0);
       expect(result.mode).toBe("normal");
@@ -145,16 +145,16 @@ describe("ChangeProcessor", () => {
   //          random divisor?"
 
   describe("configuration", () => {
-    it("default config is USD with randomDivisor 3", () => {
+    it("default config is US with randomDivisor 3", () => {
       const result = processor.calculateChange(2.12, 3.0);
       expect(result.error).toBeUndefined();
-      // USD denominations produce the expected output
+      // US denominations produce the expected output
       expect(result.value).toBe("3 quarters,1 dime,3 pennies");
     });
 
     it("setConfig applies valid JSON config", () => {
       const error = processor.setConfig(
-        JSON.stringify({ currency: "USD", randomDivisor: 5 })
+        JSON.stringify({ currency: "US", randomDivisor: 5 })
       );
       expect(error).toBeNull();
     });
@@ -174,7 +174,7 @@ describe("ChangeProcessor", () => {
 
     it("setConfig returns error for missing randomDivisor field", () => {
       const error = processor.setConfig(
-        JSON.stringify({ currency: "USD" })
+        JSON.stringify({ currency: "US" })
       );
       expect(error).toBeTypeOf("string");
     });
@@ -188,14 +188,14 @@ describe("ChangeProcessor", () => {
 
     it("setConfig returns error for randomDivisor of 0", () => {
       const error = processor.setConfig(
-        JSON.stringify({ currency: "USD", randomDivisor: 0 })
+        JSON.stringify({ currency: "US", randomDivisor: 0 })
       );
       expect(error).toBeTypeOf("string");
     });
 
     it("setConfig returns error for non-numeric randomDivisor", () => {
       const error = processor.setConfig(
-        JSON.stringify({ currency: "USD", randomDivisor: "abc" })
+        JSON.stringify({ currency: "US", randomDivisor: "abc" })
       );
       expect(error).toBeTypeOf("string");
     });
@@ -233,11 +233,11 @@ describe("ChangeProcessor", () => {
       expect(result.error).toBeUndefined();
       // 88 pence in GBP = 50p + 20p + 10p + 5p + 2p + 1p
       expect(result.value).toBe(
-        "1 50p,1 20p,1 10p,1 5p,1 2p,1 1p"
+        "1 50 pence,1 20 pence,1 10 pence,1 5 pence,1 2 pence,1 1 pence"
       );
     });
 
-    it("US → uses USD denominations", () => {
+    it("US → uses US denominations", () => {
       processor.setLocation({
         latitude: 40.7128,
         longitude: -74.006,
@@ -250,7 +250,7 @@ describe("ChangeProcessor", () => {
       expect(result.value).toBe("3 quarters,1 dime,3 pennies");
     });
 
-    it("null country code → falls back to USD", () => {
+    it("null country code → falls back to US", () => {
       processor.setLocation({
         latitude: 0,
         longitude: 0,
@@ -263,7 +263,7 @@ describe("ChangeProcessor", () => {
       expect(result.value).toBe("3 quarters,1 dime,3 pennies");
     });
 
-    it("unknown country (JP) → falls back to USD", () => {
+    it("unknown country (JP) → falls back to US", () => {
       processor.setLocation({
         latitude: 35.6762,
         longitude: 139.6503,
@@ -276,8 +276,8 @@ describe("ChangeProcessor", () => {
       expect(result.value).toBe("3 quarters,1 dime,3 pennies");
     });
 
-    it("setLocation with null country code falls back to USD (not throw)", () => {
-      // currencyForCountry returns "USD" for null, which is supported
+    it("setLocation with null country code falls back to US (not throw)", () => {
+      // currencyForCountry returns "US" for null, which is supported
       expect(() =>
         processor.setLocation({
           latitude: 0,
@@ -412,7 +412,7 @@ describe("ChangeProcessor", () => {
 
 // ─── Test Helpers ──────────────────────────────────────────────
 
-const USD_DENOMINATIONS = [
+const US_DENOMINATIONS = [
   { name: "one hundred", value: 10000 },
   { name: "fifty", value: 5000 },
   { name: "twenty", value: 2000 },
@@ -433,7 +433,7 @@ function parseSummaryToCents(summary: string): number {
     if (spaceIdx === -1) continue;
     const count = parseInt(trimmed.slice(0, spaceIdx), 10);
     const denomName = trimmed.slice(spaceIdx + 1);
-    const denom = USD_DENOMINATIONS.find((d) => {
+    const denom = US_DENOMINATIONS.find((d) => {
       const plural =
         d.value === 1
           ? "pennies"
@@ -459,7 +459,7 @@ function parseSummaryToDenominations(
     if (spaceIdx === -1) continue;
     const count = parseInt(trimmed.slice(0, spaceIdx), 10);
     const denomName = trimmed.slice(spaceIdx + 1);
-    const denom = USD_DENOMINATIONS.find((d) => {
+    const denom = US_DENOMINATIONS.find((d) => {
       const plural =
         d.value === 1
           ? "pennies"

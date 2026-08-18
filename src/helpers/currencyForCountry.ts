@@ -7,7 +7,7 @@ const EUR_COUNTRIES = new Set([
 
 export function currencyForCountry(countryCode: string | null): string {
   // If no country code is provided, default to USD
-  if (!countryCode) return "USD";
+  if (!countryCode) return "US";
 
   // Check if the country code is in the EUR_COUNTRIES set
   if (EUR_COUNTRIES.has(countryCode)) return "EUR";

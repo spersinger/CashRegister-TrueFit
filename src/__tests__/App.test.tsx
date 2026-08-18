@@ -243,7 +243,7 @@ describe("App — README behaviors", () => {
 
       const configInput = getFileInput("Upload config");
       const configFile = new File(
-        [JSON.stringify({ currency: "USD", randomDivisor: 3 })],
+        [JSON.stringify({ currency: "US", randomDivisor: 3 })],
         "config.json",
         { type: "application/json" }
       );
